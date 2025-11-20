@@ -5,7 +5,7 @@
 
 typedef struct {
     char user[32];
-    long timestamp;
+    time_t timestamp;
     int length;
     char content[1024];
 } Message;

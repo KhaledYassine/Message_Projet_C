@@ -1,6 +1,8 @@
 #ifndef CONVERSATION_H
 #define CONVERSATION_H
 
+#include <time.h> // Required for time_t
+
 #define MAX_PARTICIPANTS 10
 
 typedef struct {
@@ -8,7 +10,7 @@ typedef struct {
     char name[128];
     char participants[MAX_PARTICIPANTS][32];
     int num_participants;
-    long last_timestamp;
+    time_t last_timestamp;
 } Conversation;
 
 #endif // CONVERSATION_H

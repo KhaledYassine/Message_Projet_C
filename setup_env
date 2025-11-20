@@ -1,0 +1,123 @@
+✅ Project Setup & Compilation Summary (Windows 11 + w64devkit)
+1. Install a C compiler with Make (w64devkit)
+
+Windows does not include make or gcc, so we installed w64devkit, which includes:
+
+gcc (C compiler)
+
+make
+
+gdb
+
+Unix tools
+
+portable terminal environment
+
+Steps:
+
+Go to the GitHub page:
+skeeto/w64devkit → Releases
+
+Download the correct file:
+✔ w64devkit-x64-2.4.0.7z.exe
+
+Run the .exe → it extracts a folder, e.g.:
+
+C:\w64devkit
+
+
+Inside that folder, you get:
+
+w64devkit.exe       ← launch this terminal
+bin/
+gcc.exe
+make.exe
+...
+
+2. Open the w64devkit environment
+
+Double-click:
+
+C:\w64devkit\w64devkit.exe
+
+
+This opens a Unix-like terminal where gcc and make already work.
+
+3. Navigate to the project folder
+
+Your project is located at:
+
+C:\Users\LordDrag\Desktop\Tp\prog C\PROJET_C
+
+
+Because there is a space in the folder name (prog C), use quotes:
+
+cd "/c/Users/LordDrag/Desktop/Tp/prog C/PROJET_C"
+
+
+List files to confirm:
+
+ls
+
+4. Build the project using Make
+
+Just run:
+
+make
+
+
+This compiles:
+
+src/main.c
+
+src/user.c
+
+src/conversation_manager.c
+
+and generates:
+
+messenger.exe
+
+5. Fix compilation warnings (optional)
+
+We updated this line in main.c:
+
+snprintf(new_conv.cnv_id, sizeof(new_conv.cnv_id), "%ld", time(NULL));
+
+
+because %ld was incorrect on Windows.
+
+Correct version:
+
+snprintf(new_conv.cnv_id, sizeof(new_conv.cnv_id), "%lld", (long long)time(NULL));
+
+
+After modifying code:
+
+make clean   # if available
+make
+
+6. Run the program
+Inside w64devkit:
+
+Use Unix-style:
+
+./messenger.exe createuser myuser mypassword123
+
+In Windows CMD (without w64devkit):
+
+Skip the ./:
+
+messenger.exe createuser myuser mypassword123
+
+
+or full path:
+
+C:\Users\LordDrag\Desktop\Tp\prog C\PROJET_C\messenger.exe createuser myuser mypassword123
+
+✅ Summary of Tools
+Task	Tool	Works?
+Compile	make	✔ in w64devkit
+Run program	./messenger	✔ in w64devkit
+Run program	messenger.exe	✔ in Windows CMD
+Run make in Windows CMD	❌ unless PATH is updated	
