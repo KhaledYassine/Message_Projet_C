@@ -3,7 +3,7 @@ CFLAGS = -Iinclude -Wall -Wextra -std=c11
 SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
-SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/globals.c $(SRC_DIR)/user.c $(SRC_DIR)/send.c $(SRC_DIR)/view.c $(SRC_DIR)/ui.c $(SRC_DIR)/storage.c $(SRC_DIR)/command_handler.c
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/globals.c $(SRC_DIR)/user.c $(SRC_DIR)/send.c $(SRC_DIR)/view.c $(SRC_DIR)/ui.c $(SRC_DIR)/storage.c $(SRC_DIR)/command_handler.c $(SRC_DIR)/visuals.c $(SRC_DIR)/interactive.c
 OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SOURCES))
 EXECUTABLE = $(BIN_DIR)/messaging_app
 

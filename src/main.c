@@ -1,15 +1,19 @@
 #include "common.h"
 #include "user.h"
-#include "send.h" // No longer directly used, but potentially for consistency check
-#include "view.h" // No longer directly used, but potentially for consistency check
+#include "send.h" 
+#include "view.h" 
 #include "ui.h"
 #include "storage.h"
-#include "command_handler.h" // New include
+#include "command_handler.h" 
+#include "visuals.h" 
 
 
 int main() {
     char input_buffer[256];
     
+    // Initialize visuals (colors)
+    init_visuals();
+
     // Load initial data 
     load_all_data();
 
@@ -37,3 +41,4 @@ int main() {
 
     return 0;
 }
+

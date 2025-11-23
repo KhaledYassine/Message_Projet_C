@@ -5,6 +5,7 @@
 #include <sys/stat.h> // For stat
 #include <stdio.h> // For remove
 #include <string.h> // For strtok
+#include "visuals.h" // For color codes
 
 #ifdef _WIN32
 #include <direct.h> // For _mkdir on Windows
@@ -73,18 +74,18 @@ void load_users_from_files() {
                             strcpy(users[user_count].password, password_buffer);
                             user_count++;
                         } else {
-                            printf("Warning: Max users reached, skipping '%s'.\n", username_buffer);
+                            printf(COLOR_YELLOW "Warning: Max users reached, skipping '%s'.\n" COLOR_RESET, username_buffer);
                         }
                     }
                     fclose(fp);
                 } else {
-                    printf("Error: Could not open user file '%s'.\n", filepath);
+                    printf(COLOR_RED "Error: Could not open user file '%s'.\n" COLOR_RESET, filepath);
                 }
             }
         }
         closedir(d);
     } else {
-        printf("Warning: Could not open user data directory '%s'. (May not exist or permissions issue)\n", USER_DATA_DIR);
+        printf(COLOR_YELLOW "Warning: Could not open user data directory '%s'. (May not exist or permissions issue)\n" COLOR_RESET, USER_DATA_DIR);
     }
 }
 
@@ -97,7 +98,7 @@ void save_user_to_file(const User* user) {
         fprintf(fp, "%s\n", user->password);
         fclose(fp);
     } else {
-        printf("Error: Could not save user file for '%s'.\n", user->username);
+        printf(COLOR_RED "Error: Could not save user file for '%s'.\n" COLOR_RESET, user->username);
     }
 }
 
@@ -105,9 +106,9 @@ void delete_user_file(const char* username) {
     char filepath[256];
     get_user_filepath(username, filepath);
     if (remove(filepath) == 0) {
-        printf("User file for '%s' deleted.\n", username);
+        printf(COLOR_GREEN "User file for '%s' deleted.\n" COLOR_RESET, username);
     } else {
-        printf("Error: Could not delete user file for '%s'. (File might not exist or permissions issue)\n", username);
+        printf(COLOR_RED "Error: Could not delete user file for '%s'. (File might not exist or permissions issue)\n" COLOR_RESET, username);
     }
 }
 
@@ -160,20 +161,20 @@ void load_all_messages_from_files() {
                                 strcpy(messages[message_count].content, content);
                                 message_count++;
                             } else {
-                                printf("Warning: Max messages reached, skipping from '%s'.\n", filepath);
+                                printf(COLOR_YELLOW "Warning: Max messages reached, skipping from '%s'.\n" COLOR_RESET, filepath);
                                 break;
                             }
                         }
                     }
                     fclose(fp);
                 } else {
-                    printf("Error: Could not open conversation file '%s'.\n", filepath);
+                    printf(COLOR_RED "Error: Could not open conversation file '%s'.\n" COLOR_RESET, filepath);
                 }
             }
         }
         closedir(d);
     } else {
-        printf("Warning: Could not open conversation data directory '%s'. (May not exist or permissions issue)\n", CONVERSATION_DATA_DIR);
+        printf(COLOR_YELLOW "Warning: Could not open conversation data directory '%s'. (May not exist or permissions issue)\n" COLOR_RESET, CONVERSATION_DATA_DIR);
     }
 }
 
@@ -187,7 +188,7 @@ void save_message_to_file(const Message* msg) {
         fprintf(fp, "%s %s %d %ld %s\n", msg->sender, msg->recipient, msg->read_status, (long)msg->timestamp, msg->content);
         fclose(fp);
     } else {
-        printf("Error: Could not save message to conversation file for '%s' and '%s'.\n", msg->sender, msg->recipient);
+        printf(COLOR_RED "Error: Could not save message to conversation file for '%s' and '%s'.\n" COLOR_RESET, msg->sender, msg->recipient);
     }
 }
 
@@ -224,7 +225,7 @@ void load_conversation_from_file(const char* user1, const char* user2, Message c
                     strcpy(conversation_messages[*conversation_count].content, content);
                     (*conversation_count)++;
                 } else {
-                    printf("Warning: Max messages for conversation reached, some messages skipped.\n");
+                    printf(COLOR_YELLOW "Warning: Max messages for conversation reached, some messages skipped.\n" COLOR_RESET);
                     break;
                 }
             }
@@ -240,11 +241,11 @@ void load_conversation_from_file(const char* user1, const char* user2, Message c
 void load_all_data() {
     load_users_from_files();
     load_all_messages_from_files();
-    printf("Data loading complete.\n");
+    printf(COLOR_GREEN "Data loading complete.\n" COLOR_RESET);
 }
 
 void save_all_data() {
     // Current strategy: users are saved when registered/updated, messages are saved when sent.
     // So this function is mainly a placeholder or for future batch saving of other data.
-    printf("Data saving complete (individual saves handled).\n");
+    printf(COLOR_GREEN "Data saving complete (individual saves handled).\n" COLOR_RESET);
 }

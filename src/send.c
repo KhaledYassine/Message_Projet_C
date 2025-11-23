@@ -2,15 +2,16 @@
 #include "common.h"
 #include "user.h" // For find_user_index
 #include "storage.h" // For save_message_to_file
+#include "visuals.h" // For color codes
 
 // Sends a message from current_username to recipient. Returns 0 on success, -1 on failure.
 int send_message(const char* recipient, const char* content) {
     if (find_user_index(recipient) == -1) {
-        printf("Error: Recipient '%s' does not exist.\n", recipient);
+        printf(COLOR_RED "Error: Recipient '%s' does not exist.\n" COLOR_RESET, recipient);
         return -1;
     }
     if (strlen(content) > MAX_MESSAGE_LEN) {
-        printf("Error: Message too long (max %d characters).\n", MAX_MESSAGE_LEN);
+        printf(COLOR_RED "Error: Message too long (max %d characters).\n" COLOR_RESET, MAX_MESSAGE_LEN);
         return -1;
     }
 
@@ -31,6 +32,6 @@ int send_message(const char* recipient, const char* content) {
         message_count++;
     }
 
-    printf("Message sent to '%s'.\n", recipient);
+    printf(COLOR_GREEN "Message sent to '%s'.\n" COLOR_RESET, recipient);
     return 0;
 }
