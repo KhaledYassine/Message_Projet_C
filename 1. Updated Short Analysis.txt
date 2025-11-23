@@ -1,0 +1,301 @@
+1. Updated Short Professional Analysis (with your new clarifications)
+Server as a Passive Participant
+
+Your server behaves like a read-only third participant:
+
+It stores conversations per cnv_id
+
+It receives full messages from users
+
+It returns only the part after the client’s last timestamp
+
+The server never decrypts anything (future encryption version).
+Messages are stored in plain text format (good for a class project).
+
+Message Format (plain text object)
+
+Each line in a conversation file looks like:
+
+user::timestamp::length::encrypted_message
+
+
+Even if the message is plain for now, this structure is perfect.
+It makes parsing easy and maps directly to a C struct:
+
+typedef struct {
+    char user[32];
+    long timestamp;
+    int length;
+    char content[1024];
+} Message;
+
+
+This format is simple, C-friendly, and future-proof.
+
+Conversation Key Derivation (Your Method)
+
+You propose:
+
+A shared “conversation password” (ex: hello123)
+
+Hash it (later SHA256 or for now simple hash)
+
+Create symmetric key from the hash
+
+Good.
+For now (no encryption version), we keep the password but don’t use it yet.
+
+Sync Logic (simple and correct)
+
+User sends:
+
+SYNC_REQUEST cnv_id last_timestamp
+
+
+Server reads file → returns only messages with timestamp > last_timestamp.
+
+Very easy to implement.
+
+Connection Method
+
+You asked UDP or TCP.
+
+Answer: Use TCP only.
+
+Reason:
+
+You need ordering
+
+You need reliable delivery
+
+You need simple message boundaries
+
+UDP only adds complexity for no gain.
+
+TCP is more than enough for your project.
+
+Password Weight (your method)
+
+You take each char, convert to ASCII, sum or concatenate.
+You can keep this for the simple version.
+Later you can switch to SHA256 easily.
+
+User Connection State
+
+Clients send:
+
+CONNECT (when opening the app)
+
+DISCONNECT (when closing)
+
+This is perfect and lightweight.
+
+🔧 What to Improve (Final Version)
+1. Add a small metadata file inside each conversation
+
+You agreed — here is the updated version:
+
+/user/conversations/<cnv_id>/meta.dat
+
+
+Contents:
+
+cnv_name=<string>
+last_timestamp=<value>
+participants=user1,user2,user3
+
+2. Better Sync Protocol (simple, C-friendly)
+
+Here is the improved one:
+
+Client → Server
+
+SYNC <cnv_id> <last_timestamp>
+
+
+Server → Client
+
+BEGIN <count>
+user::timestamp::length::message
+user::timestamp::length::message
+...
+END
+
+
+Why this is good:
+
+Easy to parse
+
+Allows multiple new messages
+
+Defines boundaries clearly
+
+3. Key Sharing (updated)
+
+You explained this perfectly:
+
+For now: common conversation password defined manually by users.
+
+Later: encrypted key distribution.
+
+So we keep it as is (simple, no encryption in this VIP).
+
+4. Updated User Directory Structure
+
+You asked for suggestions → here is the final optimized tree.
+
+📁 2. Final Folder Structure (User + Server)
+🟦 User Directory (local client)
+/user/<username>/
+    passwd_hash
+    passwd_weight
+    conversations/
+        <cnv_id>/
+            meta.dat
+            messages_local.txt
+
+🟧 Server Directory
+/server/
+    conversations/
+        <cnv_id>.txt     // full conversation log for all users
+
+
+Future upgrade:
+
+<cnv_id>.enc
+
+📄 3. Data File Formats
+passwd_hash
+482935234  (simple hash for now)
+
+passwd_weight
+sum_of_ascii_characters
+
+meta.dat
+cnv_name=FamilyChat
+last_timestamp=1737083923
+participants=ali,samir,mohamed
+
+messages_local.txt
+
+User’s local version of the server file:
+
+ali::1737083921::14::salam guys!
+samir::1737083922::5::hello
+
+server conversation file (<cnv_id>.txt)
+
+Same format, but contains all messages:
+
+ali::1737083921::14::salam guys!
+samir::1737083922::5::hello
+mohamed::1737083925::11::how are you?
+
+🔌 4. Communication Protocol (Final)
+Client → Server
+CONNECT <username>
+SYNC <cnv_id> <last_timestamp>
+SEND <cnv_id> user::timestamp::length::msg
+DISCONNECT <username>
+
+Server → Client
+CONNECTED OK
+BEGIN <count>
+user::timestamp::length::msg
+...
+END
+
+🧩 5. Minimal Working Plan (Coding Steps)
+Phase 1 – User Management (Local Only)
+
+create_user() function
+
+Generate hash + weight
+
+Create directory structure
+
+Phase 2 – Message Storage (Local Only)
+
+Create the messages_local.txt file
+
+Parse & write messages
+
+Generate timestamps
+
+Phase 3 – Server Implementation
+
+TCP server
+
+Handle:
+
+CONNECT
+
+SYNC
+
+SEND
+
+Append messages to <cnv_id>.txt
+
+Phase 4 – Client Implementation
+
+Verify password locally
+
+Load metadata
+
+Sync with server
+
+Send new messages
+
+Update messages_local.txt
+
+Phase 5 – Testing
+
+Start server
+
+Run 2 clients
+
+Test real conversation
+
+🔺 6. UML Diagrams (Text-Based Version)
+
+(I give you textual UML — tell me if you want graphical)
+
+Class Diagram
++---------------------+
+|       User          |
++---------------------+
+| username            |
+| passwd_hash         |
+| passwd_weight       |
+| conversations[]     |
++---------------------+
+
++---------------------+
+|   Conversation      |
++---------------------+
+| cnv_id              |
+| name                |
+| participants[]      |
+| last_timestamp      |
+| messages[]          |
++---------------------+
+
++---------------------+
+|      Message        |
++---------------------+
+| user                |
+| timestamp           |
+| length              |
+| content             |
++---------------------+
+
+Sequence (Send Message)
+Client → Server: SEND <cnv_id> msg
+Server → ServerStorage: append msg
+Server → Client: OK
+
+Sequence (Sync Conversation)
+Client → Server: SYNC <cnv_id> <last_timestamp>
+Server → Storage: read new messages
+Server → Client: BEGIN ... END
+Client → LocalStorage: write messages

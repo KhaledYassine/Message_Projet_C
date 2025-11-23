@@ -1,80 +1,60 @@
 #include "user.h"
-#include <stdio.h>
-#include <string.h>
+#include "common.h" // For access to global data and MAX_ constants
+#include "storage.h" // For save_user_to_file
 
-#if defined(_WIN32)
-#include <direct.h>
-#define MKDIR(path) _mkdir(path)
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
-#define MKDIR(path) mkdir(path, 0755)
-#endif
+// Note: Global variable definitions have been moved to globals.c
 
-// Simple hash function (placeholder, as per roadmap)
-long simple_hash(const char* str) {
-    long hash = 5381;
-    int c;
-    while ((c = *str++)) {
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+// Finds a user by username and returns their index. Returns -1 if not found.
+int find_user_index(const char* username) {
+    for (int i = 0; i < user_count; i++) {
+        if (strcmp(users[i].username, username) == 0) {
+            return i;
+        }
     }
-    return hash;
+    return -1;
 }
 
-// Simple weight function (as per roadmap)
-long calculate_weight(const char* str) {
-    long weight = 0;
-    size_t len = strlen(str);
-    for (size_t i = 0; i < len; ++i) {
-        weight += str[i];
-    }
-    return weight;
-}
-
-int create_user(const char* username, const char* password) {
-    printf("Attempting to create user: %s\n", username);
-
-    // Create base 'user' directory
-    MKDIR("user");
-
-    // Create user-specific directory
-    char user_dir[256];
-    snprintf(user_dir, sizeof(user_dir), "user/%s", username);
-    MKDIR(user_dir);
-
-    // Create conversations directory
-    char conversations_dir[512];
-    snprintf(conversations_dir, sizeof(conversations_dir), "%s/conversations", user_dir);
-    MKDIR(conversations_dir);
-
-    // 2. Calculate and save passwd_hash
-    char hash_path[512];
-    snprintf(hash_path, sizeof(hash_path), "%s/passwd_hash", user_dir);
-    FILE* f_hash = fopen(hash_path, "w");
-    if (!f_hash) {
-        perror("Failed to create passwd_hash file");
+// Registers a new user. Returns 0 on success, -1 on failure.
+int register_user(const char* username, const char* password) {
+    if (user_count >= MAX_USERS) {
+        printf("Error: Maximum number of users reached.\n");
         return -1;
     }
-    fprintf(f_hash, "%ld", simple_hash(password));
-    fclose(f_hash);
-
-    // 3. Calculate and save passwd_weight
-    char weight_path[512];
-    snprintf(weight_path, sizeof(weight_path), "%s/passwd_weight", user_dir);
-    FILE* f_weight = fopen(weight_path, "w");
-    if (!f_weight) {
-        perror("Failed to create passwd_weight file");
+    if (find_user_index(username) != -1) {
+        printf("Error: Username '%s' already exists.\n", username);
         return -1;
     }
-    fprintf(f_weight, "%ld", calculate_weight(password));
-    fclose(f_weight);
+    if (strlen(username) > MAX_USERNAME_LEN || strlen(password) > MAX_PASSWORD_LEN) {
+        printf("Error: Username or password too long (max %d characters).\n", MAX_USERNAME_LEN);
+        return -1;
+    }
 
-    printf("User '%s' created successfully.\n", username);
+    strcpy(users[user_count].username, username);
+    strcpy(users[user_count].password, password);
+    
+    // Save user to file immediately after adding to memory
+    save_user_to_file(&users[user_count]);
+
+    user_count++;
+    printf("User '%s' registered successfully.\n", username);
     return 0;
 }
 
-int verify_user(const char* username, const char* password) {
-    // TODO: Implement user verification based on roadmap
-    printf("Verifying user %s (not implemented yet).\n", username);
-    return 0;
+// Attempts to log in a user. Returns 0 on success, -1 on failure.
+int login_user(const char* username, const char* password) {
+    int index = find_user_index(username);
+    if (index == -1) {
+        printf("Error: User '%s' not found.\n", username);
+        return -1;
+    }
+    if (strcmp(users[index].password, password) == 0) {
+        strcpy(current_username, username);
+        logged_in = 1;
+        printf("User '%s' logged in successfully.\n", username);
+        return 0;
+    } else {
+        printf("Error: Incorrect password for user '%s'.\n", username);
+        return -1;
+    }
 }

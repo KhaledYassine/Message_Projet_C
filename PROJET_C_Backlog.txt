@@ -1,0 +1,31 @@
+ok i had another idea so every user doesn't connect this way 
+i see that 
+* every user have his own dir with his own conversations 
+* every user has password ( executing the code additional to his dir )(the passwd would be the encryption key for later use)
+* each conversation have ;{cnv_id, cnv_name , participants{}(bi or multi users), state of participants (connected-notconnected), encryption key (symmetric), and messages{} user:message}
+* message: date and length and content (encrypted)
+* users can be created through a code to create their dir (create_user ./desktop myname ) > this will create a file where it has the password_hash and the same password_weight which we will rename with the files (the conversation will be crypted maybe simple encryption usign the weights) then users will subscribe to topics in the main server ( although it may be complexe for now so we will keep it like we call the server for new messages or you can suggest if there is a better way )
+* on opening the app with the dir it askes to verify the user through his username and password (locally no server included) then checks the conversations ids and request the encryped version form the server and wrerites the new message with date ect)   
+>>what to do now 
+> analyse my perspective like a professional. identify the key features and structures, recite the perspective like give me a short report for it ( clear and concise) then what's missing what's good and to keep what to change aligning with what i told you on the project
+
+1. mainly it will act as a third participant in the conv just not act with it 
+> it will store the conversation like users in a files ( with their id as a name) each message is with a time stamp so when users reqeust the new messages in a conversation the server send them the concat of that part of conversation from users last message date ( each message have timestamp and it could be as  user::timestamp::length::encrypted_message as plain text ( what do you think of this so it's an object when handling it but stored as plain text ))
+2. for conversation you can insert the id and a commun password (hello123 which will be hashed and creating from it the symetric key this can be localy so you only request the conversation content from the server then decrypt each content from each message)
+3. i explained this in this message
+4. what do you think? is it eaiser to impliment tcp udp ? like if his connected udp then tcp ?
+5. weight is like counting the ord of each charecter
+6. each client send a connect request when opening his terminal (exuting the connect code for exmpl) then disconnecting when closing
+🔧 What to change or improve	
+1. yes i agree
+2. suggest
+3. i explained how the key gonna be shared 
+4. suggest updatedd one with what i added
+📌 Next Step (recommended)
+✔ Full project architecture
+✔ Folder tree for user + server
+✔ Data file formats (for conversations, messages, metadata)
+✔ Minimal working plan for coding
+✔ Communication protocol (server–client)
+✔ UML diagrams
+for the log i think i will keep it for later dev as well as the all encryption parts we will work without encryption for the first vip
